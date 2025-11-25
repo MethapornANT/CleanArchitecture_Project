@@ -1,0 +1,52 @@
+# Executables for current directory
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+
+# Vendor directory
+vendor/
+
+# Dependencies
+# ถ้าใช้ Go Modules จะมีไฟล์นี้
+go.sum
+
+# Go generated files (ถ้ามี)
+# *ไม่ควรใส่ go.mod เพราะต้องใช้ในการ build
+# go.mod
+
+# Binary/Executable files
+*.test
+*.out
+/bin/
+/tmp/
+
+# Log files and temporary data
+*.log
+logs/
+data/
+
+# Environment/Secret files
+# สำคัญมาก: ไม่ควรเผยแพร่ข้อมูลลับ
+.env
+.env.local
+.secret
+
+# Database files (SQLite, etc.)
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE and Editor files
+# Visual Studio Code
+.vscode/
+# JetBrains IDEs (GoLand, IntelliJ)
+.idea/
+# Vim
+*~
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+*.sublime-
