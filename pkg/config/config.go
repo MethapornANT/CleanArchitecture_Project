@@ -1,39 +1,68 @@
 package config
 
 import (
-    "log"
-    "os"
-    "strconv"
+	"log"
+	"os"
+	"strconv"
 
-    "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 )
 
-// Struct สำหรับเก็บค่า Config ทั้งหมด
-type AppConfig struct {
-    ServerPort int
-    JWTSecret  string
-    APIVersion string
+// Configuration เป็น Struct สำหรับเก็บค่าตั้งค่าทั้งหมดของแอปพลิเคชัน
+type Configuration struct {
+	// การตั้งค่า Server
+	ServerPort int
+	JWTSecret  string
+	APIVersion string
+
+	// การตั้งค่า Database Connection
+	DatabaseUser     string
+	DatabasePassword string
+	DatabaseHost     string
+	DatabasePort     string
+	DatabaseName     string
 }
 
-var Config AppConfig
+// GlobalConfig เป็นตัวแปร Global ที่เก็บค่าตั้งค่าที่โหลดแล้ว
+var GlobalConfig Configuration
 
-func LoadConfig() {
-    // โหลด .env
-    if err := godotenv.Load(); err != nil {
-        log.Println("Warning: Could not load .env file.")
-    }
+// getEnvOrDefault อ่านค่าจาก Environment Variable หรือใช้ค่าเริ่มต้นหากไม่พบ
+func getEnvOrDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
 
-    // กำหนดค่า Default
-    portStr := os.Getenv("SERVER_PORT")
-    if portStr == "" {
-        portStr = "8080"
-    }
-    port, _ := strconv.Atoi(portStr)
+// LoadConfiguration จะโหลดค่าตั้งค่าทั้งหมดจาก .env และ Environment Variables
+func LoadConfiguration() {
+	// โหลดไฟล์ .env (ทำเพียงครั้งเดียว)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: Could not load .env file. Using system environment variables or default values.")
+	}
 
-    // ใส่ค่าลง Struct
-    Config = AppConfig{
-        ServerPort: port,
-        JWTSecret:  os.Getenv("JWT_SECRET"),
-        APIVersion: os.Getenv("API_VERSION"),
-    }
+	// 1. กำหนดค่า Server
+	serverPortStr := getEnvOrDefault("SERVER_PORT", "8080")
+	serverPort, _ := strconv.Atoi(serverPortStr)
+
+	// 2. กำหนดค่า Database
+	dbUser := getEnvOrDefault("DB_USER", "root")
+	dbPassword := getEnvOrDefault("DB_PASSWORD", "1234")
+	dbHost := getEnvOrDefault("DB_HOST", "localhost")
+	dbPort := getEnvOrDefault("DB_PORT", "3306")
+	dbName := getEnvOrDefault("DB_NAME", "usercardb")
+
+	// 3. ใส่ค่าทั้งหมดลงใน GlobalConfig
+	GlobalConfig = Configuration{
+		ServerPort: serverPort,
+		JWTSecret:  os.Getenv("JWT_SECRET"),
+		APIVersion: os.Getenv("API_VERSION"),
+
+		DatabaseUser:     dbUser,
+		DatabasePassword: dbPassword,
+		DatabaseHost:     dbHost,
+		DatabasePort:     dbPort,
+		DatabaseName:     dbName,
+	}
 }
