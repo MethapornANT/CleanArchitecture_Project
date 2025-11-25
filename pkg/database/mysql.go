@@ -31,6 +31,14 @@ func init() {
 	port := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_NAME")
 
+	if user == "" || password == "" || host == "" || port == "" || dbName == "" {
+		user = "root"
+		password = "1234"
+		host = "localhost"
+		port = "3306"
+		dbName = "usercardb"
+	}
+
 	// 3. สร้าง Connection String (DSN - Data Source Name)
 	// รูปแบบ: username:password@tcp(host:port)/database_name?param=value
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",

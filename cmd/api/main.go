@@ -4,24 +4,33 @@ import (
 	"Structure-Project/internal/core/router"
 	"Structure-Project/pkg/database"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
-	// นำเข้าแพ็กเกจ database เพื่อให้ init() ในนั้นทำงาน
 )
 
 func main() {
-
+	// 1. สร้าง Fiber App
 	app := fiber.New()
 
+	// 2. เรียก SetupRoutes (จากไฟล์ setup.go)
+	// ส่ง database.DB (Global Variable ที่ถูก init อัตโนมัติแล้ว) เข้าไป
+	SetupRoutes(app, database.DB)
 	router.RCustomer(app)
-	router.RVehicle(app)
 
-	port := "8080" // หรือจะอ่านจาก Environment Variable ด้วย os.Getenv ก็ได้
+	// 3. กำหนด Port
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// 4. Start Server
 	log.Printf("Server is starting on port %s...", port)
-	if err := app.Listen(":8080"); err != nil {
+	if err := app.Listen(":" + port); err != nil {
 		log.Fatal(err)
 	}
-	defer database.DB.Close()
 
+	// ปิด DB เมื่อจบการทำงาน
+	defer database.DB.Close()
 }
